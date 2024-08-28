@@ -1,2 +1,36 @@
+# Executable and binary files
+/bin/
+*.exe
+*.out
+*.o
+*.so
+
+# Temporary files and caches
+/tmp/
+
+# Environment files and configurations
+.env
 .envrc
-bin/
+
+# Dependency directories
+/vendor/
+
+# IDE and editor files
+.idea/
+*.iml
+.vscode/
+
+# Logs and build system files
+*.log
+Makefile
+
+# Go modules and test binaries
+/pkg/
+/src/
+/bin/
+/test/
+/coverage/
+
+# Database files and migrations
+*.sql
+*.db

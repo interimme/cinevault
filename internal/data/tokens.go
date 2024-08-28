@@ -12,7 +12,8 @@ import (
 
 const (
 	ScopeActivation     = "activation"
-	ScopeAuthentication = "authentication" // Include a new authentication scope.
+	ScopeAuthentication = "authentication"
+	ScopePasswordReset  = "password-reset"
 )
 
 // Add struct tags to control how the struct appears when encoded to JSON.

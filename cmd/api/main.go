@@ -46,9 +46,11 @@ type config struct {
 		password string
 		sender   string
 	}
-	// Add a cors struct and trustedOrigins field with the type []string.
 	cors struct {
 		trustedOrigins []string
+	}
+	jwt struct {
+		secret string // Add a new field to store the JWT signing secret.
 	}
 }
 
@@ -87,6 +89,8 @@ func main() {
 		cfg.cors.trustedOrigins = strings.Fields(val)
 		return nil
 	})
+
+	flag.StringVar(&cfg.jwt.secret, "jwt-secret", "", "JWT secret")
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
