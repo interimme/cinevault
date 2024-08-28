@@ -44,8 +44,6 @@ func (f Filters) sortColumn() string {
 	panic("unsafe sort parameter: " + f.Sort)
 }
 
-// Return the sort direction ("ASC" or "DESC") depending on the prefix character of the
-// Sort field.
 func (f Filters) sortDirection() string {
 	if strings.HasPrefix(f.Sort, "-") {
 		return "DESC"

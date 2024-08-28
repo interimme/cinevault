@@ -46,14 +46,14 @@ RETURNING id, created_at, version`
 	args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	// Use QueryRowContext() and pass the context as the first argument.
+
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 func (m MovieModel) Get(id int64) (*Movie, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
-	// Remove the pg_sleep(10) clause.
+
 	query := `
 SELECT id, created_at, title, year, runtime, genres, version
 FROM movies
@@ -61,7 +61,7 @@ WHERE id = $1`
 	var movie Movie
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	// Remove &[]byte{} from the first Scan() destination.
+
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&movie.ID,
 		&movie.CreatedAt,
@@ -95,7 +95,7 @@ RETURNING version`
 		movie.ID,
 		movie.Version,
 	}
-	// Create a context with a 3-second timeout.
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -117,10 +117,10 @@ func (m MovieModel) Delete(id int64) error {
 	query := `
 DELETE FROM movies
 WHERE id = $1`
-	// Create a context with a 3-second timeout.
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	// Use ExecContext() and pass the context as the first argument.
+
 	result, err := m.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
@@ -148,16 +148,16 @@ LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 	args := []interface{}{title, pq.Array(genres), filters.limit(), filters.offset()}
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, Metadata{}, err // Update this to return an empty Metadata struct.
+		return nil, Metadata{}, err
 	}
 	defer rows.Close()
-	// Declare a totalRecords variable.
+
 	totalRecords := 0
 	movies := []*Movie{}
 	for rows.Next() {
 		var movie Movie
 		err := rows.Scan(
-			&totalRecords, // Scan the count from the window function into totalRecords.
+			&totalRecords,
 			&movie.ID,
 			&movie.CreatedAt,
 			&movie.Title,
@@ -167,16 +167,15 @@ LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 			&movie.Version,
 		)
 		if err != nil {
-			return nil, Metadata{}, err // Update this to return an empty Metadata struct.
+			return nil, Metadata{}, err
 		}
 		movies = append(movies, &movie)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, Metadata{}, err // Update this to return an empty Metadata struct.
+		return nil, Metadata{}, err
 	}
-	// Generate a Metadata struct, passing in the total record count and pagination
-	// parameters from the client.
+
 	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
-	// Include the metadata struct when returning.
+
 	return movies, metadata, nil
 }

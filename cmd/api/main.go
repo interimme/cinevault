@@ -4,20 +4,17 @@ import (
 	"cinevault.interimme.net/internal/data"
 	"cinevault.interimme.net/internal/jsonlog"
 	"cinevault.interimme.net/internal/mailer"
-	"context"      // New import
-	"database/sql" // New import
+	"context"
+	"database/sql"
 	"expvar"
 	"flag"
 	"fmt"
+	_ "github.com/lib/pq"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
-	// Import the pq driver so that it can register itself with the database/sql
-	// package. Note that we alias this import to the blank identifier, to stop the Go
-	// compiler complaining that the package isn't being used.
-	_ "github.com/lib/pq"
 )
 
 var (
@@ -50,11 +47,10 @@ type config struct {
 		trustedOrigins []string
 	}
 	jwt struct {
-		secret string // Add a new field to store the JWT signing secret.
+		secret string
 	}
 }
 
-// Update the application struct to hold a new Mailer instance.
 type application struct {
 	config config
 	logger *jsonlog.Logger
@@ -113,18 +109,17 @@ func main() {
 	logger.PrintInfo("database connection pool established", nil)
 
 	expvar.NewString("version").Set(version)
-	// Publish the number of active goroutines.
+
 	expvar.Publish("goroutines", expvar.Func(func() interface{} {
 		return runtime.NumGoroutine()
 	}))
-	// Publish the database connection pool statistics.
 	expvar.Publish("database", expvar.Func(func() interface{} {
 		return db.Stats()
 	}))
-	// Publish the current Unix timestamp.
 	expvar.Publish("timestamp", expvar.Func(func() interface{} {
 		return time.Now().Unix()
 	}))
+
 	app := &application{
 		config: cfg,
 		logger: logger,
@@ -142,23 +137,21 @@ func openDB(cfg config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Set the maximum number of open (in-use + idle) connections in the pool. Note that
-	// passing a value less than or equal to 0 will mean there is no limit.
+
 	db.SetMaxOpenConns(cfg.db.maxOpenConns)
-	// Set the maximum number of idle connections in the pool. Again, passing a value
-	// less than or equal to 0 will mean there is no limit.
+
 	db.SetMaxIdleConns(cfg.db.maxIdleConns)
-	// Use the time.ParseDuration() function to convert the idle timeout duration string
-	// to a time.Duration type.
+
 	duration, err := time.ParseDuration(cfg.db.maxIdleTime)
 	if err != nil {
 		return nil, err
 	}
-	// Set the maximum idle timeout.
+
 	db.SetConnMaxIdleTime(duration)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = db.PingContext(ctx)
+
 	if err != nil {
 		return nil, err
 	}
