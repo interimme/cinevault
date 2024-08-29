@@ -5,6 +5,8 @@ import (
 )
 
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
+	// Declare an envelope map containing the data for the response. Note,
+	// environment and version data are now nested under system_info key.
 	env := envelope{
 		"status": "available",
 		"system_info": map[string]string{
