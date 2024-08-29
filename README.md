@@ -13,7 +13,6 @@ CineVault is a movie database REST API built using Go that allows users to creat
 - [Database Migrations](#database-migrations)
 - [Production Setup](#production-setup)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Project Structure
 
